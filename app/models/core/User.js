@@ -1,38 +1,54 @@
 const mongoose = require("mongoose");
 
 const field = {
-    name: {
+    username: {
         type: String,
+        trim: true,
+        required: [true, "User name is required"],
     },
     email: {
         type: String,
+        required: [true, "User email is required"],
+        unique: [true, "Email must be unique"],
     },
-    image: {
+    password: {
         type: String,
-    },
-    phone: {
-        type: String,
+        required: [true, "User account password is required"],
     },
 
-    // common field
-    status: {
-        // true or false
-        type: Boolean,
+    user: {
+        // @relation
+        type: mongoose.Types.ObjectId,
+        ref: "AppProfile",
     },
+
     existence: {
-        // true and false
+        // true false
         type: Boolean,
+        default: true,
     },
-    createdBy: {
-        // @relation
-        type: String,
+    status: {
+        type: Boolean,
+        default: true,
     },
-    activityToken: {
-        // @relation
-        type: String,
+
+    logAt: {
+        type: Date,
     },
+
+    tokens: [String],
 };
 
 const appUserSchema = mongoose.Schema(field, { timestamps: true });
 
 module.exports = mongoose.model("AppUser", appUserSchema);
+
+//   role: {
+//     //  employee admin
+//     type: String,
+//     required: [true, "User role is required"],
+//     enum: {
+//       values: ["admin", "employee", "visitor"],
+//       message: "User role value can't be {VALUE}, must be admin/employee",
+//     },
+//   },
