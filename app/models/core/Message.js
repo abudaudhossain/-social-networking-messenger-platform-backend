@@ -13,6 +13,11 @@ const field = {
         ref: "AppProfile",
         required: [true, "Profile Id is Required"],
     },
+    chatId: {
+        // @relation
+        type: mongoose.Types.ObjectId,
+        ref: "AppChat",
+    },
     status: {
         // true false
         type: Boolean,

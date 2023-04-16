@@ -1,4 +1,5 @@
 const NotAcceptableError = require("../exceptions/NotAcceptableError");
+const UnauthorizedError = require("../exceptions/UnauthorizedError");
 const handlers = require("../exceptions/handlers");
 const native = require("../helpers/native");
 const { getAccessToken, getToken } = require("../helpers/utility");

@@ -11,6 +11,7 @@ const profile = require("../app/controllers/profile");
 const post = require("../app/controllers/post");
 const comment = require("../app/controllers/comment");
 const fileUploader = require("../app/controllers/fileUploader");
+const messenger = require("../app/controllers/messenger");
 
 router.get("/", userAuth, welcome.welcome);
 
@@ -57,5 +58,20 @@ router.get("/feeds/search/:keyword", userAuth, post.searchFeeds);
 
 router.post("/image/upload", userAuth, fileUploader.imageUpload);
 router.get("/showFile/storage/:fileName", fileUploader.showFile);
+
+// messenger api
+router.post(
+    "/create/contact/:withUserProfileId",
+    userAuth,
+    messenger.createContact
+);
+router.get(
+    "/create/contact/:withUserProfileId",
+    userAuth,
+    messenger.getContact
+);
+
+router.post("/send/message/:chatId", userAuth, messenger.sendMessage);
+router.get("/get/message/:chatId", userAuth, messenger.getMessagesByChatId);
 
 module.exports = router;
