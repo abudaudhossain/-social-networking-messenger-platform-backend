@@ -4,8 +4,21 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-const port = process.env.PORT || 3000;
+//for socket
+const http = require("http");
+const expressServer = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(expressServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
 
+const port = process.env.PORT || 5000;
+
+//global middleware initialization
+app.use(require('./app/middleware/middlewares').global.socketIo(io));
 app.use(cors());
 app.use((req, res, next) => {
     req.rootDir = __dirname;
@@ -38,6 +51,30 @@ db.once("open", () => console.log("Mong DB connect success"));
 
 app.use("/api/v1", require("./routes/api"));
 
-app.listen(port, () => {
-    console.log(`listening on port ${port}`);
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+});
+
+//socket io
+let i = 0;
+io.on("connection", (socket) => {
+    i = i + 1;
+    console.log("a user connected", i);
+
+    // socket.on("message", (msg) => {
+    //     io.emit(`message`, msg);
+
+    //     io.emit(`${msg.chatId}`, msg);
+    //     io.emit(`unreadMessage_sender${msg.senderId}_res${msg.receiverId}`, msg);
+
+    //     console.log(msg);
+    // });
+
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
+    });
+});
+
+expressServer.listen(5000, () => {
+    console.log("listening on *:5000");
 });

@@ -13,7 +13,7 @@ const {
     updateInfoValidation,
 } = require("../validation/validationHelpers/validationHelper");
 
-const messagesRes = require("../helpers/messageRes")
+const messagesRes = require("../helpers/messageRes");
 
 const createContact = async (req, res) => {
     const userId = req.nativeRequest.setUserId;
@@ -69,21 +69,33 @@ const getContact = async (req, res) => {
     const userId = req.nativeRequest.setUserId;
     const profileId = req.nativeRequest.setProfile;
     const { withUserProfileId } = req.params;
+    let query = { $all: [profileId, withUserProfileId] };
     try {
+        console.log({ members: [profileId, withUserProfileId] });
+        if (profileId.equals(withUserProfileId)) {
+            query = [profileId, withUserProfileId];
+        }
         const existContactsList = await getChatContact({
-            members: [profileId, withUserProfileId],
+            members: query,
         });
+
         if (!existContactsList.length > 0)
             throw new ValidationError("Chat Contact Not Found");
         const chatContact = existContactsList[0];
         let withUserProfile = {};
-        for (let i = 0; i < existContactsList.length; i++) {
+        for (let i = 0; i < chatContact.members.length; i++) {
             if (chatContact.members[i]._id.equals(withUserProfileId)) {
                 withUserProfile = chatContact.members[i];
                 console.log(i);
                 break;
             }
         }
+        console.log(
+            existContactsList,
+            "esldkafj==============",
+            withUserProfile
+        );
+
         native.response(
             {
                 errorLog: {},
@@ -133,17 +145,37 @@ const sendMessage = async (req, res) => {
                 throw new ValidationError("Text or image Required");
         }
         updateInfoValidation(updateKeys);
+        let chatContact = existContactsList[0];
+        let receiverUserProfile;
+        for (let i = 0; i < chatContact.members.length; i++) {
+            if (!chatContact.members[i]._id.equals(profileId)) {
+                receiverUserProfile = chatContact.members[i];
+                console.log(i);
+                break;
+            }
+        }
         let message = await createNewMessage({
             ...req.body,
             sender: profileId,
             chatId: chatId,
         });
+
+        const resMessages = messagesRes.messagesRes([message]);
+        let msg = {
+            ...resMessages[0],
+            receiverId: receiverUserProfile._id,
+        };
+        req.io.emit(
+            `unreadMessage_sender${msg.senderId}_res${msg.receiverId}`,
+            msg
+        );
+        req.io.emit(`${chatId}`, msg);
         native.response(
             {
                 errorLog: {},
                 data: {
                     message: "Message Send SuccessFul",
-                    newMessage: message,
+                    newMessage: msg,
                 },
                 status: 200,
             },
@@ -200,6 +232,7 @@ const getMessagesByChatId = async (req, res) => {
         );
     }
 };
+
 module.exports = {
     createContact,
     getContact,

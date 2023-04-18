@@ -3,8 +3,8 @@ const native = require("../helpers/native");
 
 module.exports = {
     welcome: async (req, res) => {
-
         try {
+            
             native.response({
                 'responseCode': 'LIST_LOADED',
                 'errorLog': {},

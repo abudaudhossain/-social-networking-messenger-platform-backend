@@ -12,8 +12,9 @@ const post = require("../app/controllers/post");
 const comment = require("../app/controllers/comment");
 const fileUploader = require("../app/controllers/fileUploader");
 const messenger = require("../app/controllers/messenger");
+const socketiomw = require("../app/middleware/socketiomw");
 
-router.get("/", userAuth, welcome.welcome);
+router.get("/", welcome.welcome);
 
 router.post("/signup", auth.reg);
 router.post("/login", auth.login);
@@ -66,7 +67,7 @@ router.post(
     messenger.createContact
 );
 router.get(
-    "/create/contact/:withUserProfileId",
+    "/get/contact/:withUserProfileId",
     userAuth,
     messenger.getContact
 );
