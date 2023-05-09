@@ -18,7 +18,8 @@ const io = new Server(expressServer, {
 const port = process.env.PORT || 5000;
 
 //global middleware initialization
-app.use(require('./app/middleware/middlewares').global.socketIo(io));
+app.use(require('./app/middleware/middleware').global.socketIo(io));
+
 app.use(cors());
 app.use((req, res, next) => {
     req.rootDir = __dirname;
